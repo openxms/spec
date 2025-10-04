@@ -587,9 +587,12 @@
               <p
                 class="text-gray-400 max-w-2xl leading-relaxed text-sm sm:text-base"
               >
-                Content below is loaded from
-                <code class="font-mono text-xs">spec/v0.0.1.md</code>. Structure
-                drives navigation; dark-only presentation.
+                Document loaded from
+                <code
+                  class="bg-bg-sunken text-gray-300 px-1.5 py-0.5 rounded border border-bg-line/80 text-xs font-mono"
+                  id="spec-source"
+                  >spec/v0.0.1.md</code
+                >.
               </p>
               <div
                 id="spec-meta"
@@ -702,6 +705,7 @@
       const tocDrawerListEl = document.getElementById("toc-drawer-list");
       const specMetaEl = document.getElementById("spec-meta");
       const versionBadgeEl = document.getElementById("version-badge");
+      const specSourceEl = document.getElementById("spec-source");
       const yearEl = document.getElementById("year");
       yearEl.textContent = new Date().getFullYear();
 
@@ -879,6 +883,7 @@
           loadSpec("v" + versions.latest);
           versionBadgeEl.textContent = "v" + versions.latest;
           versionBadgeEl.classList.add("shadow-glow");
+          specSourceEl.textContent = "spec/v" + versions.latest + ".md";
         } else {
           loadSpec("v0.0.1");
         }
