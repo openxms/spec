@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>XMS Specification</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg width='128' height='128' xmlns='http://www.w3.org/2000/svg'%3E%3Crect rx='24' width='128' height='128' fill='%23010409'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='64' font-family='monospace' fill='%23fff'%3EX%3C/text%3E%3C/svg%3E"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              bg: {
+                DEFAULT: "#010409",
+                layer: "#06090f",
+                sunken: "#0d1117",
+                raised: "#171d25",
+                line: "#1f2630",
+              },
+              accent: { DEFAULT: "#3b82f6", soft: "#1d4ed8" },
+            },
+            boxShadow: {
+              glow: "0 0 0 1px rgba(59,130,246,0.3),0 0 24px -4px rgba(59,130,246,0.35)",
+              overlay:
+                "0 10px 40px -5px rgba(0,0,0,.65),0 0 0 1px rgba(255,255,255,.04)",
+            },
+            fontFamily: {
+              mono: [
+                "ui-monospace",
+                "SFMono-Regular",
+                "Menlo",
+                "Monaco",
+                "Consolas",
+                "Liberation Mono",
+                "monospace",
+              ],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      ::selection {
+        background: #1d4ed8;
+        color: #fff;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: #010409;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji",
+          "Segoe UI Emoji";
+        line-height: 1.55;
+      }
+      body.no-scroll {
+        overflow: hidden;
+        touch-action: none;
+      }
+      body::-webkit-scrollbar {
+        width: 10px;
+      }
+      body::-webkit-scrollbar-track {
+        background: #010409;
+      }
+      body::-webkit-scrollbar-thumb {
+        background: #1f2630;
+        border-radius: 6px;
+      }
+      body::-webkit-scrollbar-thumb:hover {
+        background: #2b333f;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        scroll-margin-top: 5.5rem;
+      }
+      .anchor-link {
+        opacity: 0;
+        margin-left: 0.35rem;
+        text-decoration: none;
+        transition: opacity 0.15s;
+      }
+      h1:hover .anchor-link,
+      h2:hover .anchor-link,
+      h3:hover .anchor-link,
+      h4:hover .anchor-link,
+      h5:hover .anchor-link,
+      h6:hover .anchor-link {
+        opacity: 1;
+      }
+      .fade-in {
+        animation: fade 0.35s ease;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hero-gradient {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+            circle at 60% 40%,
+            rgba(59, 130, 246, 0.2),
+            transparent 55%
+          ),
+          radial-gradient(
+            circle at 30% 70%,
+            rgba(29, 78, 216, 0.18),
+            transparent 60%
+          );
+        opacity: 0.55;
+        mix-blend-mode: screen;
+        pointer-events: none;
+        filter: blur(40px);
+      }
+      @media (max-width: 640px) {
+        .hero-gradient {
+          filter: blur(28px);
+          opacity: 0.45;
+        }
+      }
+      .grid-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025) 1px,
+            transparent 1px
+          );
+        background-size: 38px 38px, 38px 38px;
+        mask: radial-gradient(
+          circle at center,
+          rgba(0, 0, 0, 0.55),
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        line-height: 1;
+        border-radius: 0.75rem;
+        padding: 0.85rem 1.15rem;
+        font-size: 0.85rem;
+        background: #0d1117;
+        color: #d1d9e3;
+        border: 1px solid #1f2630;
+        transition: background 0.25s, color 0.25s, border-color 0.25s,
+          box-shadow 0.25s;
+        min-height: 2.75rem;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn:hover {
+        background: #162132;
+        color: #fff;
+        border-color: #2b3950;
+      }
+      .btn-accent {
+        background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+        color: #fff;
+        border: 1px solid #2563eb;
+        box-shadow: 0 4px 18px -4px rgba(37, 99, 235, 0.45);
+      }
+      .btn-accent:hover {
+        box-shadow: 0 6px 26px -6px rgba(37, 99, 235, 0.65);
+        filter: brightness(1.07);
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.62rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 0.35rem 0.55rem;
+        border-radius: 0.5rem;
+        background: #111a23;
+        border: 1px solid #223041;
+        color: #7aa2d6;
+        font-weight: 500;
+      }
+      .toc-active {
+        background: rgba(59, 130, 246, 0.12);
+        color: #fff !important;
+      }
+      .spec-shell {
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04),
+          0 4px 40px -15px rgba(0, 0, 0, 0.75);
+        border-radius: 1.25rem;
+        background: #06090f;
+      }
+      .prose pre {
+        border: 1px solid #202d39 !important;
+        background: #121b25 !important;
+      }
+      .prose pre code {
+        font-size: 0.72rem;
+        line-height: 1.4;
+      }
+      .prose code:not(pre code) {
+        background: #101820;
+        padding: 0.15rem 0.45rem;
+        border-radius: 0.4rem;
+        border: 1px solid #1e2833;
+        font-size: 0.72rem;
+      }
+      .prose {
+        word-break: break-word;
+      }
+      .prose pre {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .floating-toc-btn {
+        position: fixed;
+        right: 0.9rem;
+        bottom: calc(0.9rem + env(safe-area-inset-bottom));
+        z-index: 60;
+      }
+      .floating-toc-btn .btn {
+        padding: 0.8rem 1rem;
+        border-radius: 0.85rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        box-shadow: 0 6px 24px -6px rgba(0, 0, 0, 0.65),
+          0 0 0 1px rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(8px);
+        background: linear-gradient(145deg, #0f1722, #0a1017);
+        border: 1px solid #1f2b38;
+      }
+      .floating-toc-btn .btn:active {
+        transform: translateY(1px);
+      }
+      .drawer,
+      .nav-panel {
+        position: fixed;
+        inset: 0;
+        z-index: 70;
+        display: flex;
+      }
+      .drawer.hidden,
+      .nav-panel.hidden {
+        display: none;
+      }
+      .drawer-backdrop,
+      .nav-backdrop {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+      }
+      .drawer-panel {
+        width: 100%;
+        max-width: 20rem;
+        background: #060b11;
+        border-left: 1px solid #1c2430;
+        padding: 1.25rem 1rem 2rem;
+        box-shadow: var(
+          --panel-shadow,
+          0 0 0 1px rgba(255, 255, 255, 0.04),
+          0 10px 38px -10px rgba(0, 0, 0, 0.7)
+        );
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .nav-panel-panel {
+        width: 100%;
+        background: #060b11;
+        padding: 1.25rem 1rem 2rem;
+        border-bottom: 1px solid #1c2430;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.6);
+      }
+      .drawer-panel h3,
+      .nav-panel-panel h3 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #7c8fa4;
+        margin-bottom: 0.9rem;
+      }
+      .mobile-only {
+        display: block;
+      }
+      @media (min-width: 1024px) {
+        .mobile-only {
+          display: none !important;
+        }
+        .floating-toc-btn {
+          display: none;
+        }
+      }
+      #nav-toggle {
+        width: 2.5rem;
+        height: 2.5rem;
+        border: 1px solid #1f2630;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0d1117;
+        transition: background 0.25s, border-color 0.25s;
+      }
+      #nav-toggle:hover {
+        background: #162132;
+        border-color: #2b3950;
+      }
+      @media (min-width: 768px) {
+        #nav-toggle {
+          display: none;
+        }
+      }
+      .hamburger {
+        position: relative;
+        width: 18px;
+        height: 2px;
+        background: #d1d9e3;
+        border-radius: 1px;
+        transition: 0.35s;
+      }
+      .hamburger:before,
+      .hamburger:after {
+        content: "";
+        position: absolute;
+        left: 0;
+        width: 18px;
+        height: 2px;
+        background: #d1d9e3;
+        border-radius: 1px;
+        transition: 0.35s;
+      }
+      .hamburger:before {
+        top: -6px;
+      }
+      .hamburger:after {
+        top: 6px;
+      }
+      #nav-toggle[aria-expanded="true"] .hamburger {
+        background: transparent;
+      }
+      #nav-toggle[aria-expanded="true"] .hamburger:before {
+        transform: translateY(6px) rotate(45deg);
+      }
+      #nav-toggle[aria-expanded="true"] .hamburger:after {
+        transform: translateY(-6px) rotate(-45deg);
+      }
+      h1 {
+        font-size: clamp(2.15rem, 7vw, 3.75rem);
+      }
+      #hero {
+        padding-top: 6.2rem;
+      }
+      @media (max-width: 640px) {
+        #hero {
+          min-height: 64vh;
+        }
+        .spec-shell {
+          padding: 1.25rem 1.1rem;
+          border-radius: 1rem;
+        }
+        .btn {
+          padding: 0.75rem 1rem;
+          font-size: 0.8rem;
+        }
+        .badge {
+          font-size: 0.58rem;
+        }
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .toc-scroll {
+        max-height: calc(100vh - 8rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-right: 4px;
+        scrollbar-width: thin;
+        scrollbar-color: #1f2630 transparent;
+      }
+      .toc-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+      .toc-scroll::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .toc-scroll::-webkit-scrollbar-thumb {
+        background: #1f2630;
+        border-radius: 6px;
+      }
+      .toc-scroll::-webkit-scrollbar-thumb:hover {
+        background: #2b333f;
+      }
+    </style>
+  </head>
+  <body
+    class="text-gray-300 antialiased selection:bg-accent selection:text-white"
+  >
+    <header
+      class="fixed top-0 inset-x-0 z-50 border-b border-bg-line/60 backdrop-blur-xl bg-bg/70 supports-[backdrop-filter]:bg-bg/55"
+    >
+      <div
+        class="mx-auto max-w-7xl px-5 sm:px-6 h-16 flex items-center justify-between"
+      >
+        <a href="#hero" class="flex items-center gap-2 group">
+          <span class="h-2 w-2 rounded-full bg-accent shadow-glow"></span>
+          <span
+            class="text-sm font-semibold tracking-wide text-white group-hover:text-accent transition"
+            >XMS Spec</span
+          >
+        </a>
+        <nav class="hidden md:flex gap-8 text-sm">
+          <a href="#overview" class="text-gray-400 hover:text-white transition"
+            >Overview</a
+          >
+          <a href="#toc" class="text-gray-400 hover:text-white transition"
+            >Contents</a
+          >
+          <a
+            href="https://github.com/openxms"
+            target="_blank"
+            rel="noopener"
+            class="text-gray-400 hover:text-white transition"
+            >GitHub</a
+          >
+        </nav>
+        <button
+          id="nav-toggle"
+          class="md:hidden"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <span class="sr-only">Toggle navigation</span>
+          <span class="hamburger"></span>
+        </button>
+      </div>
+      <div id="mobile-menu" class="nav-panel hidden md:hidden">
+        <div class="nav-backdrop"></div>
+        <div class="nav-panel-panel">
+          <h3 class="flex items-center justify-between">
+            Menu
+            <button
+              id="nav-close"
+              class="ml-auto px-3 py-1 rounded text-gray-400 hover:text-white text-xs border border-bg-line/70 hover:border-gray-500"
+            >
+              Close
+            </button>
+          </h3>
+          <div class="flex flex-col gap-2 text-sm">
+            <a
+              data-nav-close
+              href="#overview"
+              class="px-3 py-2 rounded bg-bg-sunken/40 hover:bg-bg-sunken/70 text-gray-300"
+              >Overview</a
+            >
+            <a
+              data-nav-close
+              href="#toc"
+              class="px-3 py-2 rounded bg-bg-sunken/40 hover:bg-bg-sunken/70 text-gray-300"
+              >Contents</a
+            >
+            <a
+              data-nav-close
+              href="#appendix"
+              class="px-3 py-2 rounded bg-bg-sunken/40 hover:bg-bg-sunken/70 text-gray-300 hidden"
+              >Appendix</a
+            >
+            <a
+              href="https://github.com/openxms/spec"
+              target="_blank"
+              rel="noopener"
+              class="px-3 py-2 rounded bg-bg-sunken/40 hover:bg-bg-sunken/70 text-gray-300"
+              >GitHub ↗</a
+            >
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="hero" class="relative isolate min-h-[70vh] flex items-center">
+      <div class="hero-gradient"></div>
+      <div class="grid-overlay"></div>
+      <div class="mx-auto max-w-6xl px-5 sm:px-6 w-full">
+        <div class="max-w-3xl">
+          <div class="flex flex-wrap items-center gap-3 mb-6">
+            <span class="badge" id="version-badge">Spec</span>
+            <a
+              href="https://openxms.cc"
+              target="_blank"
+              rel="noopener"
+              class="text-[0.65rem] tracking-wide text-gray-400 hover:text-accent transition uppercase"
+              >OpenXMS</a
+            >
+          </div>
+          <h1
+            class="font-semibold tracking-tight text-white leading-[1.05] text-3xl sm:text-4xl lg:text-5xl"
+          >
+            <span
+              class="bg-clip-text text-transparent bg-gradient-to-r from-accent via-accent-soft to-accent"
+              >XMS Specification</span
+            >
+          </h1>
+          <p
+            class="mt-6 text-base sm:text-lg text-gray-400 leading-relaxed max-w-2xl"
+          >
+            The specification for the XMS format.<br />A CommonMeta replacement
+            designed for Kromer.
+          </p>
+          <div
+            class="mt-8 flex flex-col xs:flex-row sm:flex-row gap-3 sm:gap-4"
+          >
+            <a href="#overview" class="btn btn-accent w-full sm:w-auto"
+              >Read the Spec <span aria-hidden="true">→</span></a
+            >
+            <a
+              href="https://github.com/openxms/spec"
+              target="_blank"
+              rel="noopener"
+              class="btn w-full sm:w-auto"
+              >Repository</a
+            >
+            <button
+              type="button"
+              id="open-toc-alt"
+              class="btn w-full sm:w-auto lg:hidden"
+            >
+              TOC
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="pointer-events-none absolute inset-0 [mask-image:radial-gradient(circle_at_center,black,transparent_75%)]"
+      ></div>
+    </section>
+
+    <main class="relative z-10 -mt-14 pb-28">
+      <div class="mx-auto max-w-7xl px-5 sm:px-6">
+        <div class="spec-shell p-5 sm:p-8 lg:p-10">
+          <section id="overview" class="mb-12 sm:mb-14">
+            <div class="space-y-5">
+              <h2
+                class="text-xl sm:text-2xl font-semibold tracking-tight text-white flex items-center gap-3"
+              >
+                Overview
+                <span
+                  class="h-2 w-2 rounded-full bg-accent/70 shadow-glow"
+                ></span>
+              </h2>
+              <p
+                class="text-gray-400 max-w-2xl leading-relaxed text-sm sm:text-base"
+              >
+                Content below is loaded from
+                <code class="font-mono text-xs">spec/v0.0.1.md</code>. Structure
+                drives navigation; dark-only presentation.
+              </p>
+              <div
+                id="spec-meta"
+                class="text-[0.65rem] sm:text-xs text-gray-500"
+              ></div>
+            </div>
+          </section>
+
+          <div class="flex flex-col lg:flex-row gap-10 lg:gap-14">
+            <aside class="lg:w-72 order-last lg:order-first hidden lg:block">
+              <div class="lg:sticky lg:top-28">
+                <h3
+                  id="toc"
+                  class="text-[0.65rem] font-semibold uppercase tracking-wider text-gray-400 mb-4"
+                >
+                  Contents
+                </h3>
+                <!-- NEW SCROLL CONTAINER -->
+                <div class="toc-scroll">
+                  <nav
+                    id="toc-list"
+                    class="space-y-1 text-sm leading-snug"
+                    aria-label="Table of contents"
+                  ></nav>
+                </div>
+              </div>
+            </aside>
+
+            <article
+              id="spec-content"
+              class="prose prose-invert max-w-none flex-1 prose-pre:rounded-lg"
+            >
+              <h2>Loading Specification…</h2>
+              <p class="text-gray-500">
+                If this persists, verify the markdown file path or network
+                availability.
+              </p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="floating-toc-btn lg:hidden">
+      <button
+        id="open-toc-fab"
+        class="btn"
+        aria-haspopup="dialog"
+        aria-controls="toc-drawer"
+      >
+        TOC
+      </button>
+    </div>
+
+    <div
+      id="toc-drawer"
+      class="drawer hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="toc-drawer-title"
+    >
+      <div class="drawer-backdrop" data-close-drawer></div>
+      <div class="drawer-panel">
+        <div class="flex items-center justify-between mb-2">
+          <h3
+            id="toc-drawer-title"
+            class="text-[0.65rem] font-semibold uppercase tracking-wider text-gray-400"
+          >
+            Contents
+          </h3>
+          <button
+            data-close-drawer
+            class="px-2 py-1 rounded text-gray-400 hover:text-white text-xs border border-bg-line/70 hover:border-gray-500"
+          >
+            Close
+          </button>
+        </div>
+        <nav id="toc-drawer-list" class="space-y-1 text-sm leading-snug"></nav>
+      </div>
+    </div>
+
+    <footer class="border-t border-bg-line/60 mt-10">
+      <div
+        class="mx-auto max-w-7xl px-5 sm:px-6 py-10 text-[0.65rem] sm:text-xs text-gray-500 flex flex-col md:flex-row gap-4 md:items-center justify-between"
+      >
+        <span
+          >&copy; <span id="year"></span> XMS Project. All rights
+          reserved.</span
+        >
+        <span class="text-gray-600"
+          >Built by the
+          <a
+            href="https://openxms.cc"
+            target="_blank"
+            rel="noopener"
+            class="text-accent hover:underline"
+            >OpenXMS</a
+          >
+          community.</span
+        >
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    <script>
+      const marked = window.marked;
+      const SPEC_VERSIONS_FILE = "spec/versions.json";
+      const specContentEl = document.getElementById("spec-content");
+      const tocListEl = document.getElementById("toc-list");
+      const tocDrawerListEl = document.getElementById("toc-drawer-list");
+      const specMetaEl = document.getElementById("spec-meta");
+      const versionBadgeEl = document.getElementById("version-badge");
+      const yearEl = document.getElementById("year");
+      yearEl.textContent = new Date().getFullYear();
+
+      async function fetchSpecVersions() {
+        try {
+          const res = await fetch(`${SPEC_VERSIONS_FILE}?_=${Date.now()}`);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return await res.json();
+        } catch (err) {
+          console.error("Failed to fetch spec versions:", err);
+          return null;
+        }
+      }
+
+      async function loadSpec(version = "v0.0.1") {
+        const SPEC_FILE = `spec/${version}.md`;
+        try {
+          const res = await fetch(`${SPEC_FILE}?_=${Date.now()}`);
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          const text = await res.text();
+          const html = marked.parse(text, { mangle: false, headerIds: true });
+          specContentEl.innerHTML = html;
+          specContentEl.classList.add("fade-in");
+          enhanceHeadings();
+          buildTOC();
+          extractVersion(text);
+          updateMeta(res);
+          scrollToHashIfPresent();
+        } catch (err) {
+          specContentEl.innerHTML = `
+          <h2 class="text-red-400">Failed to load spec</h2>
+          <p class="text-gray-500">Attempted to fetch <code>${SPEC_FILE}</code>. ${err.message}</p>
+        `;
+        }
+      }
+
+      function updateMeta(res) {
+        const date = new Date();
+        specMetaEl.innerHTML = `
+        <div class="flex flex-wrap gap-2">
+          <span class="px-2 py-0.5 rounded bg-bg-sunken text-gray-300 border border-bg-line/80">Fetched: ${
+            date.toISOString().replace("T", " ").split(".")[0]
+          }Z</span>
+          <span class="px-2 py-0.5 rounded bg-bg-sunken text-gray-300 border border-bg-line/80">HTTP ${
+            res.status
+          }</span>
+        </div>
+      `;
+      }
+
+      function normalizeId(str) {
+        return str
+          .toLowerCase()
+          .replace(/[^a-z0-9 _-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-");
+      }
+
+      function enhanceHeadings() {
+        const headings = specContentEl.querySelectorAll(
+          "h1, h2, h3, h4, h5, h6"
+        );
+        headings.forEach((h) => {
+          if (!h.id) h.id = normalizeId(h.textContent);
+          const a = document.createElement("a");
+          a.href = "#" + h.id;
+          a.textContent = "#";
+          a.className = "anchor-link text-accent hover:text-white text-xs";
+          h.appendChild(a);
+        });
+      }
+
+      function buildTOC() {
+        const headings = [...specContentEl.querySelectorAll("h1, h2, h3")];
+        tocListEl.innerHTML = "";
+        tocDrawerListEl.innerHTML = "";
+        headings.forEach((h) => {
+          const depth = parseInt(h.tagName[1], 10);
+          const link = document.createElement("a");
+          link.href = "#" + h.id;
+          link.textContent = h.textContent.replace(/#/g, "").trim();
+          link.className = [
+            "block rounded px-2 py-1 transition",
+            "text-gray-400 hover:text-white hover:bg-bg-sunken/60",
+            depth === 1
+              ? "font-semibold text-gray-300"
+              : depth === 2
+              ? "pl-4 text-sm"
+              : "pl-7 text-xs opacity-80",
+          ].join(" ");
+          const clone = link.cloneNode(true);
+          tocListEl.appendChild(link);
+          tocDrawerListEl.appendChild(clone);
+        });
+        Array.from(tocDrawerListEl.querySelectorAll("a")).forEach((a) => {
+          a.addEventListener("click", () => closeDrawer());
+        });
+      }
+
+      function scrollToHashIfPresent() {
+        if (location.hash) {
+          const target = document.getElementById(location.hash.slice(1));
+          if (target)
+            setTimeout(
+              () => target.scrollIntoView({ behavior: "smooth" }),
+              120
+            );
+        }
+      }
+
+      function activateTOC() {
+        const scrollPos = window.scrollY + 140;
+        const headings = specContentEl.querySelectorAll("h1, h2, h3");
+        let activeId = null;
+        headings.forEach((h) => {
+          if (h.offsetTop <= scrollPos) activeId = h.id;
+        });
+        if (activeId) {
+          tocListEl
+            .querySelectorAll("a")
+            .forEach((a) =>
+              a.classList.toggle(
+                "toc-active",
+                a.getAttribute("href") === "#" + activeId
+              )
+            );
+          tocDrawerListEl
+            .querySelectorAll("a")
+            .forEach((a) =>
+              a.classList.toggle(
+                "toc-active",
+                a.getAttribute("href") === "#" + activeId
+              )
+            );
+
+          // NEW: ensure active stays visible in the desktop TOC scroll area
+          const tocScroll = document.querySelector(".toc-scroll");
+          if (tocScroll && window.matchMedia("(min-width: 1024px)").matches) {
+            const activeLink = tocListEl.querySelector(".toc-active");
+            if (activeLink) {
+              // Prefer smooth minimal movement
+              activeLink.scrollIntoView({
+                block: "nearest",
+                inline: "nearest",
+                behavior: "smooth",
+              });
+            }
+          }
+        }
+      }
+
+      function extractVersion(rawMd) {
+        const match = rawMd.match(
+          /Version:\s*([0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.\-]+)?)/i
+        );
+        if (match) {
+          versionBadgeEl.textContent = "v" + match[1];
+          versionBadgeEl.classList.add("shadow-glow");
+        }
+      }
+
+      function debounce(fn, delay = 80) {
+        let t;
+        return (...args) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn(...args), delay);
+        };
+      }
+
+      window.addEventListener("scroll", debounce(activateTOC, 50));
+      window.addEventListener("hashchange", scrollToHashIfPresent);
+
+      fetchSpecVersions().then((versions) => {
+        if (versions) {
+          loadSpec("v" + versions.latest);
+          versionBadgeEl.textContent = "v" + versions.latest;
+          versionBadgeEl.classList.add("shadow-glow");
+        } else {
+          loadSpec("v0.0.1");
+        }
+      });
+
+      const navToggle = document.getElementById("nav-toggle");
+      const navClose = document.getElementById("nav-close");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const tocDrawer = document.getElementById("toc-drawer");
+      const openTocFab = document.getElementById("open-toc-fab");
+      const openTocAlt = document.getElementById("open-toc-alt");
+
+      function openNav() {
+        mobileMenu.classList.remove("hidden");
+        navToggle.setAttribute("aria-expanded", "true");
+        document.body.classList.add("no-scroll");
+      }
+      function closeNav() {
+        mobileMenu.classList.add("hidden");
+        navToggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("no-scroll");
+      }
+      function toggleNav() {
+        if (mobileMenu.classList.contains("hidden")) openNav();
+        else closeNav();
+      }
+
+      function openDrawer() {
+        tocDrawer.classList.remove("hidden");
+        document.body.classList.add("no-scroll");
+        setTimeout(() => activateTOC(), 60);
+      }
+      function closeDrawer() {
+        tocDrawer.classList.add("hidden");
+        document.body.classList.remove("no-scroll");
+      }
+
+      navToggle.addEventListener("click", toggleNav);
+      if (navClose) navClose.addEventListener("click", closeNav);
+      mobileMenu.addEventListener("click", (e) => {
+        if (e.target.matches("[data-nav-close]")) closeNav();
+        if (e.target === mobileMenu.querySelector(".nav-backdrop")) closeNav();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeNav();
+          closeDrawer();
+        }
+      });
+      [openTocFab, openTocAlt].forEach((btn) => {
+        if (btn) btn.addEventListener("click", () => openDrawer());
+      });
+      tocDrawer.addEventListener("click", (e) => {
+        if (
+          e.target.matches("[data-close-drawer]") ||
+          e.target === tocDrawer.querySelector(".drawer-backdrop")
+        )
+          closeDrawer();
+      });
+    </script>
+  </body>
+</html>

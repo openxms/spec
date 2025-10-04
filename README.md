@@ -21,7 +21,7 @@ xms/1;username=steve;useruuid=550e8400;ref.item="diamond_sword";return=k12345678
 
 ## Current Version
 
-**Version 0.0.1** - Released 2025-10-02
+**Version 0.0.1** - Released 2025-10-04
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 

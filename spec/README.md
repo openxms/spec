@@ -4,7 +4,7 @@ This directory contains the official XMS specification documents for all version
 
 ## Current Versions
 
-- **[v0.0.1](v0.0.1.md)** - Current stable version (Released 2025-10-02)
+- **[v0.0.1](v0.0.1.md)** - Current stable version (Released 2025-10-04)
 
 ## Version Navigation
 
